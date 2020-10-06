@@ -114,7 +114,11 @@ func (gs *GameService) FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Ga
 	}
 
 	if !userGame.Games[gameIndex].Board[flagRequest.Column][flagRequest.Row].IsRevealed {
-		userGame.Games[gameIndex].Board[flagRequest.Column][flagRequest.Row].Flag = flagRequest.Flag
+		if userGame.Games[gameIndex].Board[flagRequest.Column][flagRequest.Row].Flag == flagRequest.Flag {
+			userGame.Games[gameIndex].Board[flagRequest.Column][flagRequest.Row].Flag = ""
+		} else {
+			userGame.Games[gameIndex].Board[flagRequest.Column][flagRequest.Row].Flag = flagRequest.Flag
+		}
 		upsertErr := gs.Container.Upsert(userGame)
 		if err != nil {
 			return nil, upsertErr
