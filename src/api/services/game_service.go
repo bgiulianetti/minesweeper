@@ -99,6 +99,13 @@ func (gs *GameService) FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Ga
 		return nil, nil
 	}
 
+	if userGame.Games[gameIndex].Status != constants.GameStatusOnGoing {
+		return nil, &errors.ApiError{
+			Message:  "game is already over",
+			ErrorStr: "game_already_over",
+		}
+	}
+
 	if flagRequest.Column > userGame.Games[gameIndex].Columns {
 		return nil, &errors.ApiError{
 			Message:  "flag out of boundries (columns exceeded)",
@@ -150,6 +157,13 @@ func (gs *GameService) RevealCell(revealCellRequest *domain.RevealCellRequest) (
 	gameIndex := getGameIndex(revealCellRequest.GameID, userGame)
 	if gameIndex == -1 {
 		return nil, nil
+	}
+
+	if userGame.Games[gameIndex].Status != constants.GameStatusOnGoing {
+		return nil, &errors.ApiError{
+			Message:  "game is already over",
+			ErrorStr: "game_already_over",
+		}
 	}
 
 	if revealCellRequest.Column > userGame.Games[gameIndex].Columns {
