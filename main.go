@@ -13,5 +13,6 @@ func main() {
 		port = "5000"
 		fmt.Printf("Fixed port to 5000")
 	}
+	fmt.Println("Listening port: " + port)
 	server.New().Run(":" + port)
 }
