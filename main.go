@@ -1,7 +1,17 @@
 package main
 
-import "github.com/mercadolibre/minesweeper/server"
+import (
+	"fmt"
+	"os"
+
+	"github.com/mercadolibre/minesweeper/server"
+)
 
 func main() {
-	server.New().Run(":5000")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+		fmt.Printf("Fixed port to 5000")
+	}
+	server.New().Run(":" + port)
 }
