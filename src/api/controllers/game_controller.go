@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mercadolibre/minesweeper/src/api/constants"
 	"github.com/mercadolibre/minesweeper/src/api/domain"
 	"github.com/mercadolibre/minesweeper/src/api/errors"
-	"github.com/mercadolibre/test-api-gin/constants"
 )
 
 // GameService ...
@@ -30,7 +30,7 @@ type GameController struct {
 // Pong allows validation that the API is responding
 func (gc GameController) Pong(c *gin.Context) {
 	c.Set("skip", true)
-	c.JSON(http.StatusOK, "Pong from minesweeper")
+	c.JSON(http.StatusOK, "Pong from: minesweeper")
 }
 
 // GetGamesByUserID ...
@@ -324,9 +324,9 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 		return nil
 	}
 
-	if boundBody.Mines <= 0 || boundBody.Mines >= boundBody.Columns*boundBody.Rows {
+	if boundBody.Mines <= 0 || boundBody.Mines > boundBody.Columns*boundBody.Rows {
 		minesError := &errors.ApiError{
-			Message:  "the number of mines must be at least one, and lower than total of cells in the game",
+			Message:  "the number of mines must be at least one, and lower or equal than total of cells in the game",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
 			Cause:    "",
@@ -376,7 +376,7 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 
 	if boundBody.Column < 0 {
 		c.JSON(http.StatusBadRequest, &errors.ApiError{
-			Message:  "columns must be grater than 0",
+			Message:  "column must be grater than 0",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
 			Cause:    "",
@@ -386,7 +386,7 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 
 	if boundBody.Row < 0 {
 		c.JSON(http.StatusBadRequest, &errors.ApiError{
-			Message:  "rows must be grater than 0",
+			Message:  "row must be grater than 0",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
 			Cause:    "",

@@ -50,6 +50,19 @@ func (gs *GameService) GetGameByGameID(userID string, gameID int64) (*domain.Gam
 // CreateGame creates a new game
 func (gs *GameService) CreateGame(gameRequest *domain.NewGameConditionsRequest) (*domain.Game, error) {
 
+	if gameRequest.Mines > gameRequest.Columns*gameRequest.Rows {
+		return nil, &errors.ApiError{
+			Message:  "Too many mines",
+			ErrorStr: "too_many_mines",
+		}
+	}
+
+	if gameRequest.Mines == 0 {
+		return nil, &errors.ApiError{
+			Message:  "Mines count must be at least one",
+			ErrorStr: "mines_count_at_least_one",
+		}
+	}
 	newGame, err := createNewGameFromRequest(gameRequest)
 	if err != nil {
 		return nil, err
@@ -106,14 +119,14 @@ func (gs *GameService) FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Ga
 		}
 	}
 
-	if flagRequest.Column > userGame.Games[gameIndex].Columns {
+	if flagRequest.Column >= userGame.Games[gameIndex].Columns {
 		return nil, &errors.ApiError{
 			Message:  "flag out of boundries (columns exceeded)",
 			ErrorStr: "out_of_boundries",
 		}
 	}
 
-	if flagRequest.Row > userGame.Games[gameIndex].Rows {
+	if flagRequest.Row >= userGame.Games[gameIndex].Rows {
 		return nil, &errors.ApiError{
 			Message:  "flag out of boundries (rows exceeded)",
 			ErrorStr: "out_of_boundries",
@@ -166,30 +179,26 @@ func (gs *GameService) RevealCell(revealCellRequest *domain.RevealCellRequest) (
 		}
 	}
 
-	if revealCellRequest.Column > userGame.Games[gameIndex].Columns {
+	if revealCellRequest.Column >= userGame.Games[gameIndex].Columns {
 		return nil, &errors.ApiError{
 			Message:  "flag out of boundries (columns exceeded)",
 			ErrorStr: "out_of_boundries",
 		}
 	}
 
-	if revealCellRequest.Row > userGame.Games[gameIndex].Rows {
+	if revealCellRequest.Row >= userGame.Games[gameIndex].Rows {
 		return nil, &errors.ApiError{
 			Message:  "flag out of boundries (rows exceeded)",
 			ErrorStr: "out_of_boundries",
 		}
 	}
 
-	if userGame.Games[gameIndex].Board[revealCellRequest.Column][revealCellRequest.Row].HasMine {
-		userGame.Games[gameIndex].Status = constants.GameStatusLose
-		userGame.Games[gameIndex].Finish = time.Now()
-	} else {
-		revealCell(userGame.Games[gameIndex].Board, revealCellRequest.Column, revealCellRequest.Row, userGame.Games[gameIndex].Columns, userGame.Games[gameIndex].Rows)
-		if checkIfWon(userGame.Games[gameIndex].Board, userGame.Games[gameIndex].Columns, userGame.Games[gameIndex].Rows) {
-			userGame.Games[gameIndex].Status = constants.GameResultWon
-			userGame.Games[gameIndex].Finish = time.Now()
-		}
+	game, err := gs.RevealCellFloodFill(userGame.Games[gameIndex], revealCellRequest.Column, revealCellRequest.Row)
+	if err != nil {
+		return nil, err
 	}
+
+	userGame.Games[gameIndex] = game
 	upsertErr := gs.Container.Upsert(userGame)
 	if err != nil {
 		return nil, upsertErr
@@ -197,8 +206,53 @@ func (gs *GameService) RevealCell(revealCellRequest *domain.RevealCellRequest) (
 	return userGame.Games[gameIndex], nil
 }
 
+// RevealCellFloodFill reveals a cell and its adjacents
+func (gs *GameService) RevealCellFloodFill(game *domain.Game, column, row int) (*domain.Game, error) {
+
+	if game.Board[column][row].HasMine {
+		game.Board[column][row].IsRevealed = true
+		game.Status = constants.GameStatusLose
+		game.Finish = time.Now()
+	} else {
+		revealCell(game.Board, column, row, game.Columns, game.Rows)
+		if checkIfWon(game.Board, game.Columns, game.Rows) {
+			game.Status = constants.GameResultWon
+			game.Finish = time.Now()
+		}
+	}
+	return game, nil
+}
+
+// GetRevealedCellsCount get the cells revealed count
+func GetRevealedCellsCount(board [][]domain.Cell, columns, rows int) int {
+	revealedCellsCount := 0
+	for i := 0; i < rows; i++ {
+		for j := 0; j < rows; j++ {
+			if board[i][j].IsRevealed {
+				revealedCellsCount++
+			}
+		}
+	}
+	return revealedCellsCount
+}
+
+func getCellsNotRevealedWithMinesCount(board [][]domain.Cell, columns, rows int) int {
+	cellsCount := 0
+	for i := 0; i < rows; i++ {
+		for j := 0; j < rows; j++ {
+			if !board[i][j].IsRevealed && board[i][j].HasMine {
+				cellsCount++
+			}
+		}
+	}
+	return cellsCount
+}
+
 func checkIfWon(board [][]domain.Cell, columns, rows int) bool {
 
+	if getCellsNotRevealedWithMinesCount(board, columns, rows) == 0 {
+		return true
+	}
 	for i := 0; i < columns; i++ {
 		for j := 0; j < rows; j++ {
 			if board[i][j].HasMine && board[i][j].Flag != constants.FlagRedFlag {
@@ -250,6 +304,7 @@ func createNewGameFromRequest(gameRequest *domain.NewGameConditionsRequest) (*do
 
 	gameID := generateUniqueID()
 	newGame := &domain.Game{
+		Mines:   gameRequest.Mines,
 		Start:   time.Now(),
 		Columns: gameRequest.Columns,
 		Rows:    gameRequest.Rows,
