@@ -36,3 +36,20 @@ type NewGameConditionsRequest struct {
 	Columns int    `json:"columns"`
 	Mines   int    `json:"mines"`
 }
+
+// FlagCellRequest ...
+type FlagCellRequest struct {
+	UserID string `json:"user_id"`
+	GameID int64  `json:"game_id"`
+	Row    int    `json:"row"`
+	Column int    `json:"column"`
+	Flag   string `json:"flag"`
+}
+
+// RevealCellRequest ...
+type RevealCellRequest struct {
+	UserID string `json:"user_id"`
+	GameID int64  `json:"game_id"`
+	Row    int    `json:"row"`
+	Column int    `json:"column"`
+}

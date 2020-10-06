@@ -3,5 +3,5 @@ package main
 import "github.com/mercadolibre/minesweeper/src/api/server"
 
 func main() {
-	server.New().Run(":8080")
+	server.New().Run(":5000")
 }
