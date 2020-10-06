@@ -139,6 +139,10 @@ func (gs *GameService) FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Ga
 		} else {
 			userGame.Games[gameIndex].Board[flagRequest.Column][flagRequest.Row].Flag = flagRequest.Flag
 		}
+		if checkIfWon(userGame.Games[gameIndex].Board, userGame.Games[gameIndex].Columns, userGame.Games[gameIndex].Rows) {
+			userGame.Games[gameIndex].Status = constants.GameResultWon
+			userGame.Games[gameIndex].Finish = time.Now()
+		}
 		upsertErr := gs.Container.Upsert(userGame)
 		if err != nil {
 			return nil, upsertErr

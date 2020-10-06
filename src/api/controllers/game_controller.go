@@ -229,12 +229,13 @@ func (gc GameController) RevealCell(c *gin.Context) error {
 	body := boundBody.(*domain.RevealCellRequest)
 	game, err := gc.GameService.RevealCell(body)
 	if err != nil {
-		return &errors.ApiError{
+		c.JSON(http.StatusBadRequest, &errors.ApiError{
 			Message:  err.Error(),
-			ErrorStr: "internal_server_errror",
-			Status:   http.StatusInternalServerError,
+			ErrorStr: "bad_request",
+			Status:   http.StatusBadRequest,
 			Cause:    "",
-		}
+		})
+		return nil
 	}
 
 	if game != nil {
