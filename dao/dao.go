@@ -7,7 +7,7 @@ type InMemoryContainer struct {
 	userGames []*domain.UserGame
 }
 
-// CreateInMemoryContainer ...
+// CreateInMemoryContainer initialize the container
 func CreateInMemoryContainer() *InMemoryContainer {
 
 	container := &InMemoryContainer{
@@ -16,7 +16,7 @@ func CreateInMemoryContainer() *InMemoryContainer {
 	return container
 }
 
-// Get ...
+// Get gets a game from a userID
 func (imc *InMemoryContainer) Get(userID string) (*domain.UserGame, error) {
 	for _, userGame := range imc.userGames {
 		if userGame.UserID == userID {
@@ -26,7 +26,12 @@ func (imc *InMemoryContainer) Get(userID string) (*domain.UserGame, error) {
 	return nil, nil
 }
 
-// Upsert ...
+// GetAll gets all games from a userID
+func (imc *InMemoryContainer) GetAll() ([]*domain.UserGame, error) {
+	return imc.userGames, nil
+}
+
+// Upsert inserts or updates a game
 func (imc *InMemoryContainer) Upsert(userGame *domain.UserGame) error {
 	userFound := false
 	for i, user := range imc.userGames {
@@ -39,5 +44,11 @@ func (imc *InMemoryContainer) Upsert(userGame *domain.UserGame) error {
 	if !userFound {
 		imc.userGames = append(imc.userGames, userGame)
 	}
+	return nil
+}
+
+// DeleteAll deletes all the games
+func (imc *InMemoryContainer) DeleteAll() error {
+	imc.userGames = nil
 	return nil
 }

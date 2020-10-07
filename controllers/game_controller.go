@@ -20,6 +20,8 @@ type GameService interface {
 	FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Game, error)
 	ShowStatus(userID string, gameID int64) (string, error)
 	RevealCell(flagRequest *domain.RevealCellRequest) (*domain.Game, error)
+	DeleteAllGames() error
+	GetAllGames() ([]*domain.UserGame, error)
 }
 
 // GameController expone los servicios del controller
@@ -241,6 +243,41 @@ func (gc GameController) RevealCell(c *gin.Context) error {
 	if game != nil {
 		c.JSON(http.StatusOK, game)
 	}
+	return nil
+}
+
+// DeleteAllGames deletes all games
+func (gc GameController) DeleteAllGames(c *gin.Context) error {
+
+	err := gc.GameService.DeleteAllGames()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &errors.ApiError{
+			Message:  err.Error(),
+			ErrorStr: "internal_server_error",
+			Status:   http.StatusInternalServerError,
+			Cause:    "",
+		})
+		return nil
+	}
+	c.JSON(http.StatusOK, nil)
+	return nil
+}
+
+// GetllGames gets all games
+func (gc GameController) GetllGames(c *gin.Context) error {
+
+	games, err := gc.GameService.GetAllGames()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &errors.ApiError{
+			Message:  err.Error(),
+			ErrorStr: "internal_server_error",
+			Status:   http.StatusInternalServerError,
+			Cause:    "",
+		})
+		return nil
+	}
+
+	c.JSON(http.StatusOK, games)
 	return nil
 }
 

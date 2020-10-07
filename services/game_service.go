@@ -227,6 +227,24 @@ func (gs *GameService) RevealCellFloodFill(game *domain.Game, column, row int) (
 	return game, nil
 }
 
+// DeleteAllGames deletes all games
+func (gs *GameService) DeleteAllGames() error {
+	err := gs.Container.DeleteAll()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetAllGames gets all games
+func (gs *GameService) GetAllGames() ([]*domain.UserGame, error) {
+	games, err := gs.Container.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return games, nil
+}
+
 // GetRevealedCellsCount get the cells revealed count
 func GetRevealedCellsCount(board [][]domain.Cell, columns, rows int) int {
 	revealedCellsCount := 0
@@ -391,7 +409,7 @@ func boardSolutionToString(board [][]domain.Cell) string {
 				stringBoard += " " + strconv.Itoa(cell.SourroundedBy) + " "
 			}
 		}
-		stringBoard += "|"
+		stringBoard += "\n"
 	}
 	return stringBoard
 }
