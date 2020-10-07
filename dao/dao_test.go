@@ -48,7 +48,7 @@ func TestGameUpsert(t *testing.T) {
 			userID:         "test_user_1",
 		},
 		{
-			name: "FAIL/UPSERT_WRONG_USER",
+			name: "FAIL/INSERT_WRONG_USER",
 			userGame: &domain.UserGame{
 				UserID: "test_user_2",
 				Games: []*domain.Game{
@@ -66,14 +66,14 @@ func TestGameUpsert(t *testing.T) {
 	container := CreateInMemoryContainer()
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			container.Upsert(c.userGame)
+			container.Insert(c.userGame)
 			gameFromContainer, _ := container.Get(c.userID)
 			if c.name == "OK/INSERT" || c.name == "OK/UPDATE" {
 				assert.Equal(t, gameFromContainer.UserID, c.userGame.UserID)
 				assert.Equal(t, gameFromContainer.Games[0].GameID, c.userGame.Games[0].GameID)
 				assert.Equal(t, gameFromContainer.Games[0].Status, c.expectedStatus)
-			} else {
-				assert.NotEqual(t, gameFromContainer, c.userGame)
+			} else if c.name == "FAIL/INSERT_WRONG_USER" && gameFromContainer != nil {
+				t.Errorf("FAIL/INSERT_WRONG_USER should get nil response")
 			}
 		})
 	}

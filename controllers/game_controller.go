@@ -112,12 +112,13 @@ func (gc GameController) CreateNewGame(c *gin.Context) error {
 	body := boundBody.(*domain.NewGameConditionsRequest)
 	game, err := gc.GameService.CreateGame(body)
 	if err != nil {
-		return &errors.ApiError{
+		c.JSON(http.StatusInternalServerError, &errors.ApiError{
 			Message:  err.Error(),
 			ErrorStr: "internal_server_errror",
 			Status:   http.StatusInternalServerError,
 			Cause:    "",
-		}
+		})
+		return nil
 	}
 	c.JSON(http.StatusOK, game)
 	return nil
@@ -355,6 +356,16 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 	if boundBody.Rows <= 0 {
 		c.JSON(http.StatusBadRequest, &errors.ApiError{
 			Message:  "rows must be grater than 0",
+			ErrorStr: "bad_request",
+			Status:   http.StatusBadRequest,
+			Cause:    "",
+		})
+		return nil
+	}
+
+	if boundBody.Rows != boundBody.Columns {
+		c.JSON(http.StatusBadRequest, &errors.ApiError{
+			Message:  "rows and columns must be equals",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
 			Cause:    "",

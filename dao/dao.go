@@ -1,54 +1,119 @@
 package dao
 
-import "github.com/mercadolibre/minesweeper/domain"
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
 
-// InMemoryContainer ...
-type InMemoryContainer struct {
-	userGames []*domain.UserGame
+	"github.com/mercadolibre/minesweeper/domain"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+// MongoDBContainer ...
+type MongoDBContainer struct {
+	Client     *mongo.Client
+	DB         string
+	Collection string
 }
 
-// CreateInMemoryContainer initialize the container
-func CreateInMemoryContainer() *InMemoryContainer {
+// CreateContainer initialize the container
+func CreateContainer() MongoDBContainer {
 
-	container := &InMemoryContainer{
-		userGames: make([]*domain.UserGame, 0),
-	}
-	return container
-}
-
-// Get gets a game from a userID
-func (imc *InMemoryContainer) Get(userID string) (*domain.UserGame, error) {
-	for _, userGame := range imc.userGames {
-		if userGame.UserID == userID {
-			return userGame, nil
-		}
-	}
-	return nil, nil
-}
-
-// GetAll gets all games from a userID
-func (imc *InMemoryContainer) GetAll() ([]*domain.UserGame, error) {
-	return imc.userGames, nil
-}
-
-// Upsert inserts or updates a game
-func (imc *InMemoryContainer) Upsert(userGame *domain.UserGame) error {
-	userFound := false
-	for i, user := range imc.userGames {
-		if user.UserID == userGame.UserID {
-			imc.userGames[i].Games = userGame.Games
-			userFound = true
-		}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb+srv://bgiulianetti:mongodb@cluster0.0nvl0.mongodb.net/minesweper?retryWrites=true&w=majority"))
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	if !userFound {
-		imc.userGames = append(imc.userGames, userGame)
+	mongoDBContainer := MongoDBContainer{
+		Client:     client,
+		DB:         "minesweper",
+		Collection: "games",
+	}
+	return mongoDBContainer
+}
+
+// GetAll gets all games
+func (mdb *MongoDBContainer) GetAll() ([]*domain.UserGame, error) {
+
+	var userGames []*domain.UserGame
+	collection := mdb.Client.Database(mdb.DB).Collection(mdb.Collection)
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+	for cursor.Next(ctx) {
+		var userGame domain.UserGame
+		cursor.Decode(&userGame)
+		userGames = append(userGames, &userGame)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+	return userGames, nil
+}
+
+// Get a userGame by userID
+func (mdb *MongoDBContainer) Get(userID string) (*domain.UserGame, error) {
+
+	var userGame *domain.UserGame
+	collection := mdb.Client.Database(mdb.DB).Collection(mdb.Collection)
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err := collection.FindOne(ctx, bson.M{"user_id": userID}).Decode(&userGame)
+	if err != nil {
+		return nil, err
+	}
+	return userGame, nil
+}
+
+// Update ...
+func (mdb *MongoDBContainer) Update(userGame *domain.UserGame) error {
+
+	collection := mdb.Client.Database(mdb.DB).Collection(mdb.Collection)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := collection.ReplaceOne(
+		ctx,
+		bson.M{"user_id": userGame.UserID},
+		bson.M{
+			"user_id": userGame.UserID,
+			"games":   userGame.Games,
+		},
+	)
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-// DeleteAll deletes all the games
-func (imc *InMemoryContainer) DeleteAll() error {
-	imc.userGames = nil
+// Insert ...
+func (mdb *MongoDBContainer) Insert(userGame *domain.UserGame) error {
+	collection := mdb.Client.Database(mdb.DB).Collection(mdb.Collection)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	res, err := collection.InsertOne(ctx, userGame)
+	if err != nil {
+		return err
+	}
+	fmt.Println(res.InsertedID)
+	return nil
+}
+
+// DeleteAll deletes all games
+func (mdb *MongoDBContainer) DeleteAll() error {
+
+	collection := mdb.Client.Database(mdb.DB).Collection(mdb.Collection)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := collection.DeleteMany(ctx, bson.M{})
+	if err != nil {
+		return err
+	}
 	return nil
 }

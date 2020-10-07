@@ -13,12 +13,13 @@ import (
 
 // GameService ...
 type GameService struct {
-	Container dao.InMemoryContainer
+	Container         dao.MongoDBContainer
+	InMemoryContainer dao.InMemoryContainer
 }
 
 // GetGamesByUserID returns all the games by a user
 func (gs *GameService) GetGamesByUserID(userID string) (*domain.UserGame, error) {
-	userGame, err := gs.Container.Get(userID)
+	userGame, err := gs.InMemoryContainer.Get(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +31,7 @@ func (gs *GameService) GetGamesByUserID(userID string) (*domain.UserGame, error)
 
 // GetGameByGameID returns all the games by a user
 func (gs *GameService) GetGameByGameID(userID string, gameID int64) (*domain.Game, error) {
-	userGames, err := gs.Container.Get(userID)
+	userGames, err := gs.InMemoryContainer.Get(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -50,6 +51,7 @@ func (gs *GameService) GetGameByGameID(userID string, gameID int64) (*domain.Gam
 // CreateGame creates a new game
 func (gs *GameService) CreateGame(gameRequest *domain.NewGameConditionsRequest) (*domain.Game, error) {
 
+	newUser := false
 	if gameRequest.Mines > gameRequest.Columns*gameRequest.Rows {
 		return nil, &errors.ApiError{
 			Message:  "Too many mines",
@@ -68,21 +70,26 @@ func (gs *GameService) CreateGame(gameRequest *domain.NewGameConditionsRequest) 
 		return nil, err
 	}
 
-	userGames, getErr := gs.Container.Get(gameRequest.UserID)
-	if getErr != nil {
-		return nil, getErr
-	}
-
+	userGames, _ := gs.InMemoryContainer.Get(gameRequest.UserID)
 	if userGames == nil {
+		newUser = true
 		userGames = &domain.UserGame{
 			UserID: gameRequest.UserID,
 			Games:  make([]*domain.Game, 0),
 		}
 	}
+
 	userGames.Games = append(userGames.Games, newGame)
-	upsertErr := gs.Container.Upsert(userGames)
-	if upsertErr != nil {
-		return nil, upsertErr
+
+	if newUser {
+		insertErr := gs.InMemoryContainer.Insert(userGames)
+		if insertErr != nil {
+			return nil, insertErr
+		}
+	}
+	updateErr := gs.InMemoryContainer.Update(userGames)
+	if updateErr != nil {
+		return nil, updateErr
 	}
 	return newGame, nil
 }
@@ -143,9 +150,9 @@ func (gs *GameService) FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Ga
 			userGame.Games[gameIndex].Status = constants.GameResultWon
 			userGame.Games[gameIndex].Finish = time.Now()
 		}
-		upsertErr := gs.Container.Upsert(userGame)
+		updateErr := gs.InMemoryContainer.Update(userGame)
 		if err != nil {
-			return nil, upsertErr
+			return nil, updateErr
 		}
 	}
 	return userGame.Games[gameIndex], nil
@@ -203,9 +210,9 @@ func (gs *GameService) RevealCell(revealCellRequest *domain.RevealCellRequest) (
 	}
 
 	userGame.Games[gameIndex] = game
-	upsertErr := gs.Container.Upsert(userGame)
+	updateErr := gs.InMemoryContainer.Update(userGame)
 	if err != nil {
-		return nil, upsertErr
+		return nil, updateErr
 	}
 	return userGame.Games[gameIndex], nil
 }
@@ -229,7 +236,7 @@ func (gs *GameService) RevealCellFloodFill(game *domain.Game, column, row int) (
 
 // DeleteAllGames deletes all games
 func (gs *GameService) DeleteAllGames() error {
-	err := gs.Container.DeleteAll()
+	err := gs.InMemoryContainer.DeleteAll()
 	if err != nil {
 		return err
 	}
@@ -238,7 +245,7 @@ func (gs *GameService) DeleteAllGames() error {
 
 // GetAllGames gets all games
 func (gs *GameService) GetAllGames() ([]*domain.UserGame, error) {
-	games, err := gs.Container.GetAll()
+	games, err := gs.InMemoryContainer.GetAll()
 	if err != nil {
 		return nil, err
 	}

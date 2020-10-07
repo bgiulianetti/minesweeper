@@ -10,7 +10,8 @@ func resolveGameController() *controllers.GameController {
 
 	return &controllers.GameController{
 		GameService: &services.GameService{
-			Container: *dao.CreateInMemoryContainer(),
+			InMemoryContainer: *dao.CreateInMemoryContainer(),
+			Container:         dao.CreateContainer(),
 		},
 	}
 }

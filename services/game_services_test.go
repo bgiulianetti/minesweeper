@@ -50,7 +50,7 @@ func TestGameCreation(t *testing.T) {
 	}
 
 	gameService := &GameService{
-		Container: *dao.CreateInMemoryContainer(),
+		InMemoryContainer: *dao.CreateInMemoryContainer(),
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestMinesCount(t *testing.T) {
 	}
 
 	gameService := &GameService{
-		Container: *dao.CreateInMemoryContainer(),
+		InMemoryContainer: *dao.CreateInMemoryContainer(),
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -146,7 +146,7 @@ func TestRevealCell(t *testing.T) {
 	}
 
 	gameService := &GameService{
-		Container: *dao.CreateInMemoryContainer(),
+		InMemoryContainer: *dao.CreateInMemoryContainer(),
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -253,7 +253,7 @@ func TestFlagCell(t *testing.T) {
 	}
 
 	gameService := &GameService{
-		Container: *dao.CreateInMemoryContainer(),
+		InMemoryContainer: *dao.CreateInMemoryContainer(),
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -306,7 +306,7 @@ func TestGetGamesByUserID(t *testing.T) {
 	}
 
 	gameService := &GameService{
-		Container: *dao.CreateInMemoryContainer(),
+		InMemoryContainer: *dao.CreateInMemoryContainer(),
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -418,7 +418,7 @@ func TestGameWinOrLose(t *testing.T) {
 	}
 
 	gameService := &GameService{
-		Container: *dao.CreateInMemoryContainer(),
+		InMemoryContainer: *dao.CreateInMemoryContainer(),
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
