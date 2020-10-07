@@ -246,7 +246,7 @@
     {
       "message": "flag out of boundries (columns exceeded)",
       "error": "out_of_boundries",
-      "status": 0
+      "status": 400
     }
     ```
   - 200: Cell Flagged
