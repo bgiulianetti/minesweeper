@@ -40,7 +40,7 @@ func (gc GameController) GetGamesByUserID(c *gin.Context) error {
 
 	userID, ok := c.Get("userID")
 	if !ok {
-		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError}
 	}
 	games, err := gc.GameService.GetGamesByUserID(fmt.Sprintf("%v", userID))
 	if err != nil {
@@ -48,7 +48,6 @@ func (gc GameController) GetGamesByUserID(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "internal_server_errror",
 			Status:   http.StatusInternalServerError,
-			Cause:    "",
 		}
 	}
 
@@ -57,7 +56,6 @@ func (gc GameController) GetGamesByUserID(c *gin.Context) error {
 			Message:  "user not found",
 			ErrorStr: "not_found",
 			Status:   http.StatusNotFound,
-			Cause:    "",
 		})
 	} else {
 		c.JSON(http.StatusOK, games)
@@ -70,12 +68,12 @@ func (gc GameController) GetGameByGameID(c *gin.Context) error {
 
 	userID, ok := c.Get("userID")
 	if !ok {
-		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError}
 	}
 
 	gameID, ok := c.Get("gameID")
 	if !ok {
-		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError}
 	}
 
 	game, err := gc.GameService.GetGameByGameID((fmt.Sprintf("%v", userID)), gameID.(int64))
@@ -84,7 +82,6 @@ func (gc GameController) GetGameByGameID(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "internal_server_errror",
 			Status:   http.StatusInternalServerError,
-			Cause:    "",
 		})
 	}
 
@@ -93,7 +90,6 @@ func (gc GameController) GetGameByGameID(c *gin.Context) error {
 			Message:  "game not found",
 			ErrorStr: "not_found",
 			Status:   http.StatusNotFound,
-			Cause:    "",
 		})
 	} else {
 		c.JSON(http.StatusOK, game)
@@ -106,7 +102,7 @@ func (gc GameController) CreateNewGame(c *gin.Context) error {
 
 	boundBody, ok := c.Get("boundBody")
 	if !ok {
-		return &errors.ApiError{"undefined boundBody", "internal_server_errror", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined boundBody", "internal_server_errror", http.StatusInternalServerError}
 	}
 
 	body := boundBody.(*domain.NewGameConditionsRequest)
@@ -116,7 +112,6 @@ func (gc GameController) CreateNewGame(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "internal_server_errror",
 			Status:   http.StatusInternalServerError,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -129,12 +124,12 @@ func (gc GameController) ShowSolution(c *gin.Context) error {
 
 	userID, ok := c.Get("userID")
 	if !ok {
-		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError}
 	}
 
 	gameID, ok := c.Get("gameID")
 	if !ok {
-		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError}
 	}
 
 	solution, err := gc.GameService.ShowSolution((fmt.Sprintf("%v", userID)), gameID.(int64))
@@ -143,7 +138,6 @@ func (gc GameController) ShowSolution(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "internal_server_errror",
 			Status:   http.StatusInternalServerError,
-			Cause:    "",
 		})
 	}
 
@@ -152,7 +146,6 @@ func (gc GameController) ShowSolution(c *gin.Context) error {
 			Message:  "game_not_found",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 	} else {
 		c.JSON(http.StatusOK, solution)
@@ -165,12 +158,12 @@ func (gc GameController) ShowStatus(c *gin.Context) error {
 
 	userID, ok := c.Get("userID")
 	if !ok {
-		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError}
 	}
 
 	gameID, ok := c.Get("gameID")
 	if !ok {
-		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined userID", "internal_server_error", http.StatusInternalServerError}
 	}
 
 	solution, err := gc.GameService.ShowStatus((fmt.Sprintf("%v", userID)), gameID.(int64))
@@ -179,7 +172,6 @@ func (gc GameController) ShowStatus(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "internal_server_errror",
 			Status:   http.StatusInternalServerError,
-			Cause:    "",
 		})
 	}
 
@@ -188,7 +180,6 @@ func (gc GameController) ShowStatus(c *gin.Context) error {
 			Message:  "game_not_found",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 	} else {
 		c.JSON(http.StatusOK, solution)
@@ -201,7 +192,7 @@ func (gc GameController) FlagCell(c *gin.Context) error {
 
 	boundBody, ok := c.Get("boundBody")
 	if !ok {
-		return &errors.ApiError{"undefined boundBody", "internal_server_errror", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined boundBody", "internal_server_errror", http.StatusInternalServerError}
 	}
 
 	body := boundBody.(*domain.FlagCellRequest)
@@ -224,7 +215,7 @@ func (gc GameController) RevealCell(c *gin.Context) error {
 
 	boundBody, ok := c.Get("boundBody")
 	if !ok {
-		return &errors.ApiError{"undefined boundBody", "internal_server_errror", http.StatusInternalServerError, ""}
+		return &errors.ApiError{"undefined boundBody", "internal_server_errror", http.StatusInternalServerError}
 	}
 
 	body := boundBody.(*domain.RevealCellRequest)
@@ -234,7 +225,6 @@ func (gc GameController) RevealCell(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -257,7 +247,6 @@ func (gc GameController) DeleteAllGames(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "internal_server_error",
 			Status:   http.StatusInternalServerError,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -274,7 +263,6 @@ func (gc GameController) GetllGames(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "internal_server_error",
 			Status:   http.StatusInternalServerError,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -289,7 +277,7 @@ func (gc GameController) ValidateGetGamesByUserID(c *gin.Context) error {
 	// Validate user_id
 	userID := c.Param("user_id")
 	if userID == "" {
-		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid user_id", "bad_request", http.StatusBadRequest, ""})
+		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid user_id", "bad_request", http.StatusBadRequest})
 		return nil
 	}
 	c.Set("userID", userID)
@@ -302,14 +290,14 @@ func (gc GameController) ValidateGetGameByGameID(c *gin.Context) error {
 	// Validate user_id
 	userID := c.Param("user_id")
 	if userID == "" {
-		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid user_id", "bad_request", http.StatusBadRequest, ""})
+		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid user_id", "bad_request", http.StatusBadRequest})
 		return nil
 	}
 
 	gameID := c.Param("game_id")
 	intGameID, err := strconv.ParseInt(gameID, 10, 64)
 	if err != nil || intGameID < 0 {
-		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid game_id: " + err.Error(), "bad_request", http.StatusBadRequest, ""})
+		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid game_id: " + err.Error(), "bad_request", http.StatusBadRequest})
 		return nil
 	}
 
@@ -328,7 +316,6 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -339,7 +326,6 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 			Message:  "user_id is mandatory",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -349,7 +335,6 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 			Message:  "columns must be greater than 0 and less or equal than 30",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -359,7 +344,6 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 			Message:  "rows must be greater than 0 and less or equal than 30",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -369,7 +353,6 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 			Message:  "rows and columns must be equals",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -379,7 +362,6 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 			Message:  "the number of mines must be at least one, and less or equal than total of cells in the game",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		}
 		c.JSON(http.StatusBadRequest, minesError)
 		return nil
@@ -401,7 +383,6 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -412,7 +393,6 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 			Message:  "user_id is mandatory",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -420,7 +400,7 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 	gameID := c.Param("game_id")
 	intGameID, err := strconv.ParseInt(gameID, 10, 64)
 	if err != nil || intGameID < 0 {
-		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid game_id: " + err.Error(), "bad_request", http.StatusBadRequest, ""})
+		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid game_id: " + err.Error(), "bad_request", http.StatusBadRequest})
 		return nil
 	}
 
@@ -429,7 +409,6 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 			Message:  "column must be grater than 0",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -439,7 +418,6 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 			Message:  "row must be grater than 0",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -449,7 +427,6 @@ func (gc GameController) ValidateFlag(c *gin.Context) error {
 			Message:  "Available flag options: [" + constants.FlagQuestionMark + ", [" + constants.FlagRedFlag + "]",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		}
 		c.JSON(http.StatusBadRequest, minesError)
 		return nil
@@ -472,7 +449,6 @@ func (gc GameController) ValidateReveal(c *gin.Context) error {
 			Message:  err.Error(),
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -483,7 +459,6 @@ func (gc GameController) ValidateReveal(c *gin.Context) error {
 			Message:  "user_id is mandatory",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -491,7 +466,7 @@ func (gc GameController) ValidateReveal(c *gin.Context) error {
 	gameID := c.Param("game_id")
 	intGameID, err := strconv.ParseInt(gameID, 10, 64)
 	if err != nil || intGameID < 0 {
-		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid game_id: " + err.Error(), "bad_request", http.StatusBadRequest, ""})
+		c.JSON(http.StatusBadRequest, &errors.ApiError{"invalid game_id: " + err.Error(), "bad_request", http.StatusBadRequest})
 		return nil
 	}
 
@@ -500,7 +475,6 @@ func (gc GameController) ValidateReveal(c *gin.Context) error {
 			Message:  "columns must be grater than 0",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
@@ -510,7 +484,6 @@ func (gc GameController) ValidateReveal(c *gin.Context) error {
 			Message:  "rows must be grater than 0",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
-			Cause:    "",
 		})
 		return nil
 	}
