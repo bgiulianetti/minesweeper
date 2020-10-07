@@ -207,12 +207,8 @@ func (gc GameController) FlagCell(c *gin.Context) error {
 	body := boundBody.(*domain.FlagCellRequest)
 	game, err := gc.GameService.FlagCell(body)
 	if err != nil {
-		return &errors.ApiError{
-			Message:  err.Error(),
-			ErrorStr: "internal_server_errror",
-			Status:   http.StatusInternalServerError,
-			Cause:    "",
-		}
+		c.JSON(http.StatusBadRequest, err)
+		return nil
 	}
 
 	if game == nil {
