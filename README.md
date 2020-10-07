@@ -1,5 +1,4 @@
-### Description
-I decided to develop the minesweper API in Golang
+## Minesweeper API
 
 ## Decisions made
 - The project was developed in Golang, with Go modules and [Gin](https://github.com/gin-gonic/gin).
@@ -19,8 +18,7 @@ I decided to develop the minesweper API in Golang
     {
       "message": "Internal Server Error",
       "error": "internal_server_error",
-      "status": 500,
-      "cause": ""
+      "status": 500
     }
     ```
   - 200: Lists of all the games of all the users
@@ -136,8 +134,7 @@ I decided to develop the minesweper API in Golang
     {
         "message": "rows and columns must be equals",
         "error": "bad_request",
-        "status": 400,
-        "cause": ""
+        "status": 400
     }
     ```
     - None or too many Mines
@@ -145,8 +142,7 @@ I decided to develop the minesweper API in Golang
     {
       "message": "the number of mines must be at least one, and less or equal than total of cells in the game",
       "error": "bad_request",
-      "status": 400,
-      "cause": ""
+      "status": 400
     }
     ```
     - Columns or rows greater than 30
@@ -154,8 +150,7 @@ I decided to develop the minesweper API in Golang
     {
     "message": "columns must be greater than 0 and less or equal than 30",
       "error": "bad_request",
-      "status": 400,
-      "cause": ""
+      "status": 400
       }
     ```
   - 201: Game Created
@@ -218,8 +213,7 @@ I decided to develop the minesweper API in Golang
     {
       "message": "flag out of boundries (columns exceeded)",
       "error": "bad_request",
-      "status": 400,
-      "cause": ""
+      "status": 400
     }
     ```
   - 200: Cell Revealed
@@ -244,8 +238,7 @@ I decided to develop the minesweper API in Golang
     {
       "message": "Available flag options: [question_mark, [red_flag]",
       "error": "bad_request",
-      "status": 400,
-      "cause": ""
+      "status": 400
     }
     ```
     - Flag position out of boundries
@@ -253,8 +246,7 @@ I decided to develop the minesweper API in Golang
     {
       "message": "flag out of boundries (columns exceeded)",
       "error": "out_of_boundries",
-      "status": 0,
-      "cause": ""
+      "status": 0
     }
     ```
   - 200: Cell Flagged
