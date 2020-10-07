@@ -19,7 +19,7 @@ type GameService interface {
 	ShowSolution(userID string, gameID int64) (string, error)
 	FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Game, error)
 	ShowStatus(userID string, gameID int64) (string, error)
-	RevealCell(flagRequest *domain.RevealCellRequest) (*domain.Game, error)
+	RevealCell(revealCellRequest *domain.RevealCellRequest) (*domain.Game, error)
 	DeleteAllGames() error
 	GetAllGames() ([]*domain.UserGame, error)
 }
@@ -120,7 +120,7 @@ func (gc GameController) CreateNewGame(c *gin.Context) error {
 		})
 		return nil
 	}
-	c.JSON(http.StatusOK, game)
+	c.JSON(http.StatusCreated, game)
 	return nil
 }
 
@@ -274,7 +274,7 @@ func (gc GameController) GetllGames(c *gin.Context) error {
 
 	games, err := gc.GameService.GetAllGames()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, &errors.ApiError{
+		c.JSON(http.StatusInternalServerError, &errors.ApiError{
 			Message:  err.Error(),
 			ErrorStr: "internal_server_error",
 			Status:   http.StatusInternalServerError,
@@ -348,9 +348,9 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 		return nil
 	}
 
-	if boundBody.Columns <= 0 {
+	if boundBody.Columns <= 0 || boundBody.Columns > 30 {
 		c.JSON(http.StatusBadRequest, &errors.ApiError{
-			Message:  "columns must be grater than 0",
+			Message:  "columns must be greater than 0 and less or equal than 30",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
 			Cause:    "",
@@ -358,9 +358,9 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 		return nil
 	}
 
-	if boundBody.Rows <= 0 {
+	if boundBody.Rows <= 0 || boundBody.Rows > 30 {
 		c.JSON(http.StatusBadRequest, &errors.ApiError{
-			Message:  "rows must be grater than 0",
+			Message:  "rows must be greater than 0 and less or equal than 30",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
 			Cause:    "",
@@ -380,7 +380,7 @@ func (gc GameController) ValidatePost(c *gin.Context) error {
 
 	if boundBody.Mines <= 0 || boundBody.Mines > boundBody.Columns*boundBody.Rows {
 		minesError := &errors.ApiError{
-			Message:  "the number of mines must be at least one, and lower or equal than total of cells in the game",
+			Message:  "the number of mines must be at least one, and less or equal than total of cells in the game",
 			ErrorStr: "bad_request",
 			Status:   http.StatusBadRequest,
 			Cause:    "",
