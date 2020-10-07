@@ -215,9 +215,11 @@ func (gc GameController) FlagCell(c *gin.Context) error {
 		}
 	}
 
-	if game != nil {
-		c.JSON(http.StatusOK, game)
+	if game == nil {
+		c.JSON(http.StatusBadRequest, game)
+		return nil
 	}
+	c.JSON(http.StatusOK, game)
 	return nil
 }
 
@@ -241,9 +243,12 @@ func (gc GameController) RevealCell(c *gin.Context) error {
 		return nil
 	}
 
-	if game != nil {
-		c.JSON(http.StatusOK, game)
+	if game == nil {
+		c.JSON(http.StatusBadRequest, nil)
+		return nil
 	}
+
+	c.JSON(http.StatusOK, game)
 	return nil
 }
 

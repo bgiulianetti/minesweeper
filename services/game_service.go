@@ -114,6 +114,10 @@ func (gs *GameService) FlagCell(flagRequest *domain.FlagCellRequest) (*domain.Ga
 		return nil, err
 	}
 
+	if userGame == nil {
+		return nil, nil
+	}
+
 	gameIndex := getGameIndex(flagRequest.GameID, userGame)
 	if gameIndex == -1 {
 		return nil, nil
@@ -176,6 +180,9 @@ func (gs *GameService) RevealCell(revealCellRequest *domain.RevealCellRequest) (
 	userGame, err := gs.GetGamesByUserID(revealCellRequest.UserID)
 	if err != nil {
 		return nil, err
+	}
+	if userGame == nil {
+		return nil, nil
 	}
 
 	gameIndex := getGameIndex(revealCellRequest.GameID, userGame)
