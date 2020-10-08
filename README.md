@@ -2,8 +2,8 @@
 
 ## Decisions made
 - The project was developed in Golang, with Go modules and [Gin](https://github.com/gin-gonic/gin).
-- I decided to use in memory persistence, and also developed a fully MongoDB service persistance as well, with a MongoDB server up and running of my own. I used the [MongoDB Golang Driver](https://github.com/mongodb/mongo-go-driver)
-- I decided to deploy the API in [Heroku.com](https://heroku.com), the main reason for this decision is that I have never used Heroku.com before and I was curious of what this platform as a service was about. I use Amazon AWS for all of my projects, but I wanted to use something differente just to give it a try and build more experience with other tools an services.
+- I decided to use in memory persistence, and also developed a MongoDB service persistance as well, with a MongoDB server up and running of my own. I used the [MongoDB Golang Driver](https://github.com/mongodb/mongo-go-driver)
+- I decided to deploy the API in [Heroku.com](https://heroku.com), the main reason for this decision is that I have never used Heroku.com before and I was curious of what this platform as a service was about. I use Amazon AWS for all of my projects, but I wanted to use something different just to give it a try and build more experience with other tools an services.
 - I developed a client for this API. It can be clonned from [this repository](https://github.com/bgiulianetti/minesweeper-client)
 
 ## List of Endpoints
@@ -256,7 +256,7 @@
   ```
 
 ### Win or Lose
-If in some point a cell with a mine is revealed or all the blank cells in the board are revealed and all the mines are flagged, the game will change its status to "WON" or "LOSE", and it will populate the finish date and hour, and you won't be able to make any more changes to that game, otherwise the game status will be "on going"
+If in some point a cell with a mine is revealed or all the blank cells in the board are revealed and all the mines are flagged, the game will change its status to "WON" or in the other case "LOSE", and it will populate the finish date and hour, and you won't be able to make any more changes to that game, otherwise the game status will be "on going"
 
 ### Additional endpoints
 
@@ -271,7 +271,7 @@ The endpoints are:
   ```
     GET /users/{username}/games/{gameid}/status
   ```
-  - The cells not yet revealed will bw shown as squares
+  - The cells not yet revealed will be shown as squares
   - The cells revealed without mines around will be shown as underscore
   - The cells revealed with mines around will be shown with a number, indicating the numbers of mines around
   - The cells revealed with mines will be shown with '*'
