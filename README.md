@@ -4,6 +4,7 @@
 - The project was developed in Golang, with Go modules and [Gin](https://github.com/gin-gonic/gin).
 - I decided to use in memory persistence, and also developed a fully MongoDB service persistance as well, with a MongoDB server up and running of my own. I used the [MongoDB Golang Driver](https://github.com/mongodb/mongo-go-driver)
 - I decided to deploy the API in [Heroku.com](https://heroku.com), the main reason for this decision is that I have never used Heroku.com before and I was curious of what this platform as a service was about. I use Amazon AWS for all of my projects, but I wanted to use something differente just to give it a try and build more experience with other tools an services.
+- I developed a client for this API. It can be clonned from [this repository](https://github.com/bgiulianetti/minesweeper-client)
 
 ## List of Endpoints
 
